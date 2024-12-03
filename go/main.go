@@ -1,6 +1,7 @@
 package main
 
 import (
+	day1 "advent_of_code_2024/src/day_1"
 	"fmt"
 	"log"
 	"strings"
@@ -15,6 +16,8 @@ type DayRes struct {
 
 func main() {
 	var data []DayRes
+
+	data = append(data, parseDayStats(day1.DoDay1()))
 
 	if len(data) < 1 {
 		return
@@ -51,20 +54,6 @@ func parseDayStats(day int, part_1 string, part_2 string) DayRes {
 		PartOne: part_1,
 		PartTwo: part_2,
 	}
-}
-
-func checkDayStats(part_1 string, part_2 string, prev_max int) int {
-	new_max := prev_max
-
-	if len(part_1) > new_max {
-		new_max = len(part_1)
-	}
-
-	if len(part_2) > new_max {
-		new_max = len(part_2)
-	}
-
-	return new_max
 }
 
 func printContainers(has_above bool, has_below bool, val_len int) {
