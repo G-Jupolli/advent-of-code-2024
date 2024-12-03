@@ -2,6 +2,7 @@ package main
 
 import (
 	day1 "advent_of_code_2024/src/day_1"
+	day2 "advent_of_code_2024/src/day_2"
 	"fmt"
 	"log"
 	"strings"
@@ -18,6 +19,7 @@ func main() {
 	var data []DayRes
 
 	data = append(data, parseDayStats(day1.DoDay1()))
+	data = append(data, parseDayStats(day2.DoDay2()))
 
 	if len(data) < 1 {
 		return
