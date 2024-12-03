@@ -6,6 +6,7 @@ import (
 	day3 "advent_of_code_2024/src/day_3"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -17,6 +18,8 @@ type DayRes struct {
 }
 
 func main() {
+	os.Setenv("FULL_DATA", "yes")
+
 	var data []DayRes
 
 	data = append(data, parseDayStats(day1.DoDay1()))

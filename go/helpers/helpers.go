@@ -12,11 +12,11 @@ type DayRes struct {
 	PartTwo string
 }
 
-func GetFile(day int, is_main bool) *os.File {
-
+func GetFile(day int) *os.File {
+	full_data := os.Getenv("FULL_DATA")
 	var file_part string
 
-	if is_main {
+	if full_data == "yes" {
 		file_part = "data"
 	} else {
 		file_part = "small"

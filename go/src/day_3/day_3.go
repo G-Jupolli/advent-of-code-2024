@@ -15,7 +15,7 @@ const regex_pattern = `(?m)(mul\((\d+),(\d+)\)|do\(\)|don\'t\(\))`
 func DoDay3() (int, string, string) {
 
 	var re = regexp.MustCompile(regex_pattern)
-	file := helpers.GetFile(3, true)
+	file := helpers.GetFile(3)
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)

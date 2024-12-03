@@ -11,7 +11,7 @@ import (
 
 func DoDay1() (int, string, string) {
 
-	file := helpers.GetFile(1, true)
+	file := helpers.GetFile(1)
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)

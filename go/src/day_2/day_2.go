@@ -9,7 +9,7 @@ import (
 )
 
 func DoDay2() (int, string, string) {
-	file := helpers.GetFile(2, true)
+	file := helpers.GetFile(2)
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
