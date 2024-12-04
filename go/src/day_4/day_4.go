@@ -56,9 +56,10 @@ func DoDay4() (int, string, string) {
 
 	// Set this on getNextLine -> nil so that we don't need to bother checking down
 	did_end := false
-	// did_end_p2 := false
+	did_end_p2 := false
 
 	accumilator := 0
+	accumilator_p2 := 0
 
 	for {
 		// This happens when all lines are processed
@@ -80,7 +81,14 @@ func DoDay4() (int, string, string) {
 			case 'X':
 				accumilator += checkPart1(container, line_data, line_idx, i, did_end, true)
 			case 'S':
-				accumilator += checkPart1(container, line_data, line_idx, i, did_end, true)
+				accumilator += checkPart1(container, line_data, line_idx, i, did_end, false)
+				if checkPArt2(container, line_data, itm, line_idx, i, did_end_p2) {
+					accumilator_p2++
+				}
+			case 'M':
+				if checkPArt2(container, line_data, itm, line_idx, i, did_end_p2) {
+					accumilator_p2++
+				}
 			default:
 				continue
 			}
@@ -95,16 +103,15 @@ func DoDay4() (int, string, string) {
 			} else {
 				container[line_idx] = new_line_data
 			}
+		} else {
+			// p2 can have 1 more line below p1
+			did_end_p2 = true
 		}
-		//  else {
-		// 	// p2 can have 1 more line below p1
-		// 	did_end_p2 = true
-		// }
 
 		line_idx = (line_idx + 1) % 4
 	}
 
-	return 4, strconv.Itoa(accumilator), "impl"
+	return 4, strconv.Itoa(accumilator), strconv.Itoa(accumilator_p2)
 }
 
 func getNextLine(scanner *bufio.Scanner) *[]rune {
@@ -178,4 +185,72 @@ func checkPart1(container [4]*[]rune, line []rune, line_idx int, char_idx int, d
 	}
 
 	return matches
+}
+
+// Only try to check from top left so boll return is fine here
+func checkPArt2(container [4]*[]rune, line []rune, char rune, line_idx int, char_idx int, did_end bool) bool {
+	if did_end || (len(line)-char_idx) <= 2 {
+		return false
+	}
+
+	//   a _ b
+	//   _ c _
+	//   d _ e
+
+	// where a is char
+
+	top_char := line[char_idx+2]
+
+	if top_char != 'M' && top_char != 'S' {
+		return false
+	}
+
+	// Case when
+	//   M _ M
+	is_top := top_char == char
+
+	middle_line := *container[(line_idx+1)%4]
+	if middle_line[char_idx+1] != 'A' {
+		return false
+	}
+
+	last_line := *container[(line_idx+2)%4]
+
+	bottom_char := last_line[char_idx]
+
+	if bottom_char != 'M' && bottom_char != 'S' {
+		return false
+	}
+
+	// Handles case
+	//   M _ M
+	//   _ _ _
+	//   M _ _
+	if (bottom_char == char) == is_top {
+		return false
+	}
+
+	right_char := last_line[char_idx+2]
+
+	if right_char != 'M' && right_char != 'S' {
+		return false
+	}
+
+	// Handles case
+	//   M _ _
+	//   _ _ _
+	//   M _ M
+	if right_char == bottom_char && !is_top {
+		return false
+	}
+
+	// Handles case
+	//   M _ M
+	//   _ _ _
+	//   _ _ M
+	if (right_char == top_char) == is_top {
+		return false
+	}
+
+	return true
 }
