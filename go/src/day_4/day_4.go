@@ -56,6 +56,7 @@ func DoDay4() (int, string, string) {
 
 	// Set this on getNextLine -> nil so that we don't need to bother checking down
 	did_end := false
+	// did_end_p2 := false
 
 	accumilator := 0
 
@@ -75,65 +76,15 @@ func DoDay4() (int, string, string) {
 		// fmt.Println("Should be nil", container[line_idx])
 
 		for i, itm := range line_data {
-			// println("Idx : ", i, ", Char : ", itm)
-
-			var check_runes [3]rune
-
 			switch itm {
 			case 'X':
-				check_runes = incr_runes
+				accumilator += checkPart1(container, line_data, line_idx, i, did_end, true)
 			case 'S':
-				check_runes = decr_runes
+				accumilator += checkPart1(container, line_data, line_idx, i, did_end, true)
 			default:
 				continue
 			}
 
-			// Can remove right checks if there are not enough chars
-			check_right := len(line_data)-i >= 4
-
-			// Check Right
-			if check_right &&
-				line_data[i+1] == check_runes[0] &&
-				line_data[i+2] == check_runes[1] &&
-				line_data[i+3] == check_runes[2] {
-				accumilator++
-			}
-
-			// In this case there are < 3 lines below this point
-			// So there cannot be any downward matches
-			if did_end {
-				continue
-			}
-
-			first := *container[(line_idx+1)%4]
-			second := *container[(line_idx+2)%4]
-			third := *container[(line_idx+3)%4]
-
-			// Check Down
-			if first[i] == check_runes[0] &&
-				second[i] == check_runes[1] &&
-				third[i] == check_runes[2] {
-				accumilator++
-			}
-
-			// Check Down Righ
-			if check_right &&
-				first[i+1] == check_runes[0] &&
-				second[i+2] == check_runes[1] &&
-				third[i+3] == check_runes[2] {
-				accumilator++
-			}
-
-			if i < 3 {
-				continue
-			}
-
-			// Check Down Left
-			if first[i-1] == check_runes[0] &&
-				second[i-2] == check_runes[1] &&
-				third[i-3] == check_runes[2] {
-				accumilator++
-			}
 		}
 
 		if !did_end {
@@ -144,8 +95,11 @@ func DoDay4() (int, string, string) {
 			} else {
 				container[line_idx] = new_line_data
 			}
-
 		}
+		//  else {
+		// 	// p2 can have 1 more line below p1
+		// 	did_end_p2 = true
+		// }
 
 		line_idx = (line_idx + 1) % 4
 	}
@@ -163,4 +117,65 @@ func getNextLine(scanner *bufio.Scanner) *[]rune {
 	line := []rune(scanner.Text())
 
 	return &line
+}
+
+func checkPart1(container [4]*[]rune, line []rune, line_idx int, char_idx int, did_end bool, is_start bool) int {
+	matches := 0
+
+	var check_runes [3]rune
+
+	if is_start {
+		check_runes = incr_runes
+	} else {
+		check_runes = decr_runes
+	}
+
+	// Can remove right checks if there are not enough chars
+	check_right := len(line)-char_idx >= 4
+
+	// Check Right
+	if check_right &&
+		line[char_idx+1] == check_runes[0] &&
+		line[char_idx+2] == check_runes[1] &&
+		line[char_idx+3] == check_runes[2] {
+		matches++
+	}
+
+	// In this case there are < 3 lines below this point
+	// So there cannot be any downward matches
+	if did_end {
+		return matches
+	}
+
+	first := *container[(line_idx+1)%4]
+	second := *container[(line_idx+2)%4]
+	third := *container[(line_idx+3)%4]
+
+	// Check Down
+	if first[char_idx] == check_runes[0] &&
+		second[char_idx] == check_runes[1] &&
+		third[char_idx] == check_runes[2] {
+		matches++
+	}
+
+	// Check Down Righ
+	if check_right &&
+		first[char_idx+1] == check_runes[0] &&
+		second[char_idx+2] == check_runes[1] &&
+		third[char_idx+3] == check_runes[2] {
+		matches++
+	}
+
+	if char_idx < 3 {
+		return matches
+	}
+
+	// Check Down Left
+	if first[char_idx-1] == check_runes[0] &&
+		second[char_idx-2] == check_runes[1] &&
+		third[char_idx-3] == check_runes[2] {
+		matches++
+	}
+
+	return matches
 }
