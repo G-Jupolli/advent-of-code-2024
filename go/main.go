@@ -5,6 +5,7 @@ import (
 	day2 "advent_of_code_2024/src/day_2"
 	day3 "advent_of_code_2024/src/day_3"
 	day4 "advent_of_code_2024/src/day_4"
+	day5 "advent_of_code_2024/src/day_5"
 	"fmt"
 	"log"
 	"os"
@@ -27,6 +28,7 @@ func main() {
 	data = append(data, parseDayStats(day2.DoDay2()))
 	data = append(data, parseDayStats(day3.DoDay3()))
 	data = append(data, parseDayStats(day4.DoDay4()))
+	data = append(data, parseDayStats(day5.DoDay5()))
 
 	if len(data) < 1 {
 		return
