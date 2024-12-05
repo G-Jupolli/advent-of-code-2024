@@ -35,6 +35,7 @@ func DoDay5() (int, string, string) {
 	var lookup [269]uint32
 
 	accumilator := 0
+	accumilator_2 := 0
 
 	// Handle the ordering
 	for scanner.Scan() {
@@ -61,41 +62,39 @@ func DoDay5() (int, string, string) {
 		lookup_idx := (left * 3) + (right / 32)
 		lookup_bit := uint32(1 << (right % 32))
 
-		fmt.Printf("LB - %032b\n", lookup_bit)
-		println("Left - ", left, ", Right - ", right, ", Lookup idx - ", lookup_idx, ", From lookup bit", lookup_bit)
-
 		lookup[lookup_idx] = lookup[lookup_idx] | lookup_bit
-
-		fmt.Printf("%v\n", lookup)
-
 	}
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if is_ordered, middle_val := checkLine(lookup, line); is_ordered {
+		var pages []int
+
+		for _, page := range strings.Split(line, ",") {
+			page_int, err := strconv.Atoi(page)
+			if err != nil {
+				log.Fatal("Should be Int here")
+			}
+
+			pages = append(pages, page_int-10)
+		}
+
+		if is_ordered, middle_val, second_val := checkLine(lookup, pages); is_ordered {
 			fmt.Println("MV", middle_val)
 			accumilator += middle_val
+			accumilator_2 += second_val
+		} else {
+			accumilator_2 += second_val
 		}
 	}
 
-	return 5, strconv.Itoa(accumilator), "boop"
+	return 5, strconv.Itoa(accumilator), strconv.Itoa(accumilator_2)
 }
 
-func checkLine(lookup [269]uint32, line string) (bool, int) {
-
-	var pages []int
-
-	for _, page := range strings.Split(line, ",") {
-		page_int, err := strconv.Atoi(page)
-		if err != nil {
-			log.Fatal("Should be Int here")
-		}
-
-		pages = append(pages, page_int-10)
-	}
+func checkLine(lookup [269]uint32, pages []int) (bool, int, int) {
 
 	// No need to check last element in i
+	// Part1_Loop:
 	for i := 0; i < (len(pages) - 1); i++ {
 		lookup_idx := pages[i] * 3
 
@@ -103,12 +102,38 @@ func checkLine(lookup [269]uint32, line string) (bool, int) {
 			right_addr := pages[j] / 32
 			lookup_bit := uint32(1 << (pages[j] % 32))
 
-			if lookup[lookup_idx+right_addr]&lookup_bit == 0 {
-				return false, 0
+			// Check if i -> j is ok
+			if (lookup[lookup_idx+right_addr] & lookup_bit) != 0 {
+				continue
 			}
+
+			fmt.Println("Check 2 ")
+
+			new_lookup_idx := pages[j] * 3
+			new_right_addr := pages[i] / 32
+			new_lookup_bit := uint32(1 << (pages[i] % 32))
+
+			// Check if j -> i is ok
+			if (lookup[new_lookup_idx+new_right_addr] & new_lookup_bit) != 0 {
+				fmt.Println("backtrack nack ", pages[j]+10, pages[i]+10)
+				// If not then there is no safe config
+				return false, 0, 0
+			}
+
+			tmp := pages[i]
+			pages[i] = pages[j]
+			pages[j] = tmp
+
+			return false, 0, 1
+
+			// _, l2_data, _ := checkLine(lookup, pages)
+
+			// fmt.Println("l2", l2_data)
+			// return false, 0, l2_data
+
+			// TODO finish part 2
 		}
 	}
 
-	// Need to give back the 10 here
-	return true, pages[len(pages)/2] + 10
+	return true, pages[len(pages)/2] + 10, 0
 }
