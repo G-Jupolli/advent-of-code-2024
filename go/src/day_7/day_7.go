@@ -46,11 +46,15 @@ func DoDay7() (int, string, string) {
 			values = append(values, v_int)
 		}
 
-		if p1_ok, line_val := checkLine(target, values); p1_ok {
-			part_1 += line_val
-		} else {
-			part_2 += line_val
+		if tryLine(target, values) {
+			part_1 += target
 		}
+
+		// if p1_ok, line_val := checkLine(target, values); p1_ok {
+		// 	part_1 += line_val
+		// } else {
+		// 	part_2 += line_val
+		// }
 	}
 
 	part_2 += part_1
@@ -134,4 +138,22 @@ func checkPart2(target int, values []int) int {
 	}
 
 	return 0
+}
+
+func tryLine(target int, values []int) bool {
+	if len(values) == 1 {
+		return target == values[0]
+	}
+
+	last_val := values[len(values)-1]
+
+	if target%last_val == 0 && tryLine(target/last_val, values[:len(values)-1]) {
+		return true
+	}
+
+	if target-last_val >= 0 && tryLine(target-last_val, values[:len(values)-1]) {
+		return true
+	}
+
+	return false
 }
