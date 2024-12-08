@@ -10,6 +10,10 @@ import (
 
 /*
 Strategy
+
+Mapping over all of the possible methods is crazy inefficient.
+It would be better to backtrack through the values as if the target is a
+multiple of a value, it is fine to consider it a multiple unless proven wrong later
 */
 
 func DoDay7() (int, string, string) {
@@ -20,7 +24,7 @@ func DoDay7() (int, string, string) {
 	scanner := bufio.NewScanner(file)
 
 	part_1 := 0
-	part_2 := -1
+	part_2 := 0
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -42,15 +46,19 @@ func DoDay7() (int, string, string) {
 			values = append(values, v_int)
 		}
 
-		line_val := checkLine(target, values)
-
-		part_1 += line_val
+		if p1_ok, line_val := checkLine(target, values); p1_ok {
+			part_1 += line_val
+		} else {
+			part_2 += line_val
+		}
 	}
+
+	part_2 += part_1
 
 	return 7, strconv.Itoa(part_1), strconv.Itoa(part_2)
 }
 
-func checkLine(target int, values []int) int {
+func checkLine(target int, values []int) (bool, int) {
 
 	// The different combinations of + & * there can be
 	variations := (1 << (len(values) - 1))
@@ -73,9 +81,55 @@ func checkLine(target int, values []int) int {
 		}
 
 		if accumilator == target {
-			return target
+			return true, target
 		}
 
+		checker += 1
+	}
+
+	return false, checkPart2(target, values)
+	// return false, 0
+}
+
+func checkPart2(target int, values []int) int {
+
+	// The different combinations of + & * there can be
+	variations := (1 << (len(values) - 1))
+	// Start at 1 instead of 2 here as above validates if
+	// target is the sum of the values
+	checker := 0
+
+	for checker < variations {
+		for x := 1; x < variations; x += 1 {
+
+			accumilator := values[0]
+
+			// fmt.Print(accumilator)
+
+			for i := 1; i < len(values); i += 1 {
+				curr_val := values[i]
+				flag_pos := 1 << (i - 1)
+
+				if (flag_pos & x) != 0 {
+					// print(" || ", curr_val)
+					accumilator = (accumilator * (len(strconv.Itoa(curr_val)) * 10)) + curr_val
+				} else if (flag_pos & checker) != 0 {
+					// print(" * ", curr_val)
+					accumilator *= curr_val
+				} else {
+					// print(" + ", curr_val)
+					accumilator += curr_val
+				}
+			}
+
+			// fmt.Print(" = ", accumilator)
+			// fmt.Println()
+
+			if accumilator == target {
+				return target
+			}
+
+		}
 		checker += 1
 	}
 
