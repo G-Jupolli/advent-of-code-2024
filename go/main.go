@@ -1,7 +1,14 @@
 package main
 
 import (
+	day1 "advent_of_code_2024/src/day_1"
+	day2 "advent_of_code_2024/src/day_2"
+	day3 "advent_of_code_2024/src/day_3"
+	day4 "advent_of_code_2024/src/day_4"
+	day5 "advent_of_code_2024/src/day_5"
+	day6 "advent_of_code_2024/src/day_6"
 	day7 "advent_of_code_2024/src/day_7"
+	day8 "advent_of_code_2024/src/day_8"
 	"fmt"
 	"log"
 	"os"
@@ -20,13 +27,14 @@ func main() {
 
 	var data []DayRes
 
-	// data = append(data, parseDayStats(day1.DoDay1()))
-	// data = append(data, parseDayStats(day2.DoDay2()))
-	// data = append(data, parseDayStats(day3.DoDay3()))
-	// data = append(data, parseDayStats(day4.DoDay4()))
-	// data = append(data, parseDayStats(day5.DoDay5()))
-	// data = append(data, parseDayStats(day6.DoDay6()))
+	data = append(data, parseDayStats(day1.DoDay1()))
+	data = append(data, parseDayStats(day2.DoDay2()))
+	data = append(data, parseDayStats(day3.DoDay3()))
+	data = append(data, parseDayStats(day4.DoDay4()))
+	data = append(data, parseDayStats(day5.DoDay5()))
+	data = append(data, parseDayStats(day6.DoDay6()))
 	data = append(data, parseDayStats(day7.DoDay7()))
+	data = append(data, parseDayStats(day8.DoDay8()))
 
 	if len(data) < 1 {
 		return
