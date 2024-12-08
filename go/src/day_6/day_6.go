@@ -3,7 +3,6 @@ package day6
 import (
 	"advent_of_code_2024/helpers"
 	"bufio"
-	"fmt"
 	"log"
 	"strconv"
 )
@@ -41,11 +40,8 @@ func DoDay6() (int, string, string) {
 		var new_unvisited [3]uint64
 		visited_positions = append(visited_positions, new_unvisited)
 
-		// fmt.Println("Line : ", guard_y, ", Guard Pos : ", guard_pos, ", Flags : ", board_row, " / ", strconv.FormatInt(int64(board_row), 2))
-
 		// No need to scan more once we have the guard position
 		if guard_pos > -1 {
-			fmt.Println("Found Guard Init")
 			board_len = len(line)
 			guard_x = guard_pos
 			break
@@ -56,15 +52,16 @@ func DoDay6() (int, string, string) {
 
 main_loop:
 	for {
+		x_pos_flag := uint64(1 << (guard_x % 64))
+
+		is_visited := visited_positions[guard_y][guard_x/64]&x_pos_flag != 0
+
 		switch guard_heading {
 		// North
 		case 0:
-			fmt.Println("North")
-			x_pos_flag := uint64(1 << (guard_x % 64))
 			// Top of area
 			if guard_y == 0 {
-				fmt.Println("North Edged")
-				if visited_positions[guard_y][guard_x/64]&x_pos_flag == 0 {
+				if !is_visited {
 					visited_count += 1
 				}
 				break main_loop
@@ -77,7 +74,7 @@ main_loop:
 			}
 
 			// When moving off tile, check visited state
-			if visited_positions[guard_y][guard_x/64]&x_pos_flag == 0 {
+			if !is_visited {
 				visited_positions[guard_y][guard_x/64] |= x_pos_flag
 				visited_count += 1
 			}
@@ -86,12 +83,9 @@ main_loop:
 
 		// East
 		case 1:
-			fmt.Println("East")
-			x_pos_flag := uint64(1 << (guard_x % 64))
 			// Going Off Edge
 			if guard_x == board_len {
-				fmt.Println("east Edged")
-				if visited_positions[guard_y][guard_x/64]&x_pos_flag == 0 {
+				if !is_visited {
 					visited_count += 1
 				}
 				break main_loop
@@ -106,7 +100,7 @@ main_loop:
 			}
 
 			// When moving off tile, check visited state
-			if visited_positions[guard_y][guard_x/64]&x_pos_flag == 0 {
+			if !is_visited {
 				visited_positions[guard_y][guard_x/64] |= x_pos_flag
 				visited_count += 1
 			}
@@ -115,12 +109,9 @@ main_loop:
 
 		// West
 		case 3:
-			fmt.Println("West")
-			x_pos_flag := uint64(1 << (guard_x % 64))
 			// Going Off Edge
 			if guard_x == 0 {
-				fmt.Println("West Edged")
-				if visited_positions[guard_y][guard_x/64]&x_pos_flag == 0 {
+				if !is_visited {
 					visited_count += 1
 				}
 				break main_loop
@@ -135,7 +126,7 @@ main_loop:
 			}
 
 			// When moving off tile, check visited state
-			if visited_positions[guard_y][guard_x/64]&x_pos_flag == 0 {
+			if !is_visited {
 				visited_positions[guard_y][guard_x/64] |= x_pos_flag
 				visited_count += 1
 			}
@@ -144,19 +135,12 @@ main_loop:
 
 		// South
 		case 2:
-			fmt.Println("South")
-			x_pos_flag := uint64(1 << (guard_x % 64))
-
-			fmt.Println(len(board_state))
-
 			// Need to load in more board in this case
 			if guard_y == len(board_state)-1 {
-				fmt.Println("Load Next Line")
 
 				// When there is no more, we move off board
 				if !scanner.Scan() {
-					fmt.Println("South edged")
-					if visited_positions[guard_y][guard_x/64]&x_pos_flag == 0 {
+					if !is_visited {
 						visited_count += 1
 					}
 					break main_loop
@@ -178,7 +162,7 @@ main_loop:
 			}
 
 			// When moving off tile, check visited state
-			if visited_positions[guard_y][guard_x/64]&x_pos_flag == 0 {
+			if !is_visited {
 				visited_positions[guard_y][guard_x/64] |= x_pos_flag
 				visited_count += 1
 			}
