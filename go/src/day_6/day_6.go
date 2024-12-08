@@ -174,7 +174,7 @@ main_loop:
 		}
 	}
 
-	accumilator_2 := 0
+	accumilator_2 := -1
 
 	return 6, strconv.Itoa(visited_count), strconv.Itoa(accumilator_2)
 }
