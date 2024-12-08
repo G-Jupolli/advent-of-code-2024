@@ -79,19 +79,18 @@ func DoDay5() (int, string, string) {
 			pages = append(pages, page_int-10)
 		}
 
-		if is_ordered, middle_val, second_val := checkLine(lookup, pages); is_ordered {
-			fmt.Println("MV", middle_val)
+		if is_ordered, middle_val := checkLine(lookup, pages); is_ordered {
 			accumilator += middle_val
-			accumilator_2 += second_val
 		} else {
-			accumilator_2 += second_val
+			fmt.Println("l2", middle_val)
+			accumilator_2 += middle_val
 		}
 	}
 
 	return 5, strconv.Itoa(accumilator), strconv.Itoa(accumilator_2)
 }
 
-func checkLine(lookup [269]uint32, pages []int) (bool, int, int) {
+func checkLine(lookup [269]uint32, pages []int) (bool, int) {
 
 	// No need to check last element in i
 	// Part1_Loop:
@@ -107,33 +106,25 @@ func checkLine(lookup [269]uint32, pages []int) (bool, int, int) {
 				continue
 			}
 
-			fmt.Println("Check 2 ")
+			// fmt.Println("Check 2 ")
 
 			new_lookup_idx := pages[j] * 3
 			new_right_addr := pages[i] / 32
 			new_lookup_bit := uint32(1 << (pages[i] % 32))
 
 			// Check if j -> i is ok
-			if (lookup[new_lookup_idx+new_right_addr] & new_lookup_bit) != 0 {
-				fmt.Println("backtrack nack ", pages[j]+10, pages[i]+10)
+			if (lookup[new_lookup_idx+new_right_addr] & new_lookup_bit) == 0 {
 				// If not then there is no safe config
-				return false, 0, 0
+				return false, 0
 			}
 
 			tmp := pages[i]
 			pages[i] = pages[j]
 			pages[j] = tmp
 
-			return false, 0, 1
-
-			// _, l2_data, _ := checkLine(lookup, pages)
-
-			// fmt.Println("l2", l2_data)
-			// return false, 0, l2_data
-
-			// TODO finish part 2
+			return checkLine(lookup, pages)
 		}
 	}
 
-	return true, pages[len(pages)/2] + 10, 0
+	return true, pages[len(pages)/2] + 10
 }
