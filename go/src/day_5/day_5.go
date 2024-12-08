@@ -3,7 +3,6 @@ package day5
 import (
 	"advent_of_code_2024/helpers"
 	"bufio"
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -46,6 +45,8 @@ func DoDay5() (int, string, string) {
 			break
 		}
 
+		// Rules are always formatted as a|b where a and b are 2 digit ints
+		// It's ok to black goose this and handle the failure if it ever happens
 		left, err := strconv.Atoi(line[:2])
 		if err != nil {
 			log.Fatal("Should be Int here")
@@ -59,9 +60,14 @@ func DoDay5() (int, string, string) {
 		left -= 10
 		right -= 10
 
+		// Rules are that int a must happen before b
+		// The array is formatted with each index being 1/3 of int a so we need
+		// to index into the arr at a * 3 and then the floor of int b / 32
+		// This is done so we can bitwise check the b mod 32th bit
 		lookup_idx := (left * 3) + (right / 32)
 		lookup_bit := uint32(1 << (right % 32))
 
+		// Update the bit here
 		lookup[lookup_idx] = lookup[lookup_idx] | lookup_bit
 	}
 
@@ -70,7 +76,11 @@ func DoDay5() (int, string, string) {
 
 		var pages []int
 
+		// Manuals can have differnt length of pages so a split is ok here
+		// There may be a quicker solution as the inputs are only ever
+		// 2 digits long so skipping every 3rd rune could be quicker
 		for _, page := range strings.Split(line, ",") {
+			// Pre convert to int here
 			page_int, err := strconv.Atoi(page)
 			if err != nil {
 				log.Fatal("Should be Int here")
@@ -82,7 +92,6 @@ func DoDay5() (int, string, string) {
 		if is_ordered, middle_val := checkLine(lookup, pages); is_ordered {
 			accumilator += middle_val
 		} else {
-			fmt.Println("l2", middle_val)
 			accumilator_2 += middle_val
 		}
 	}
@@ -118,6 +127,10 @@ func checkLine(lookup [269]uint32, pages []int) (bool, int) {
 				return false, 0
 			}
 
+			// The idea here is that if j must be before i then we can swap them.
+			// In the recursion, if there ecxists n where j, n..., i
+			// we check j against all n and swap where needed resulting
+			// in the end being a complete array the follows all rules
 			tmp := pages[i]
 			pages[i] = pages[j]
 			pages[j] = tmp
