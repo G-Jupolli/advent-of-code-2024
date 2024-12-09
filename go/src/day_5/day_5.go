@@ -135,7 +135,9 @@ func checkLine(lookup [269]uint32, pages []int) (bool, int) {
 			pages[i] = pages[j]
 			pages[j] = tmp
 
-			return checkLine(lookup, pages)
+			_, p2 := checkLine(lookup, pages)
+
+			return false, p2
 		}
 	}
 
