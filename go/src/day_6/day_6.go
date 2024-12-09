@@ -55,6 +55,7 @@ main_loop:
 		x_pos_flag := uint64(1 << (guard_x % 64))
 
 		is_visited := visited_positions[guard_y][guard_x/64]&x_pos_flag != 0
+		is_obstructed := false
 
 		switch guard_heading {
 		// North
@@ -67,19 +68,7 @@ main_loop:
 				break main_loop
 			}
 
-			// Check if there is obstruction above
-			if board_state[guard_y-1][guard_x/64]&x_pos_flag != 0 {
-				guard_heading = 1
-				continue main_loop
-			}
-
-			// When moving off tile, check visited state
-			if !is_visited {
-				visited_positions[guard_y][guard_x/64] |= x_pos_flag
-				visited_count += 1
-			}
-
-			guard_y -= 1
+			is_obstructed = checkObstructed(board_state, guard_y-1, guard_x)
 
 		// East
 		case 1:
@@ -91,21 +80,7 @@ main_loop:
 				break main_loop
 			}
 
-			new_x_pos_flag := uint64(1 << ((guard_x % 64) + 1))
-
-			// Check obstruction
-			if board_state[guard_y][(guard_x+1)/64]&new_x_pos_flag != 0 {
-				guard_heading = 2
-				continue main_loop
-			}
-
-			// When moving off tile, check visited state
-			if !is_visited {
-				visited_positions[guard_y][guard_x/64] |= x_pos_flag
-				visited_count += 1
-			}
-
-			guard_x += 1
+			is_obstructed = checkObstructed(board_state, guard_y, guard_x+1)
 
 		// West
 		case 3:
@@ -117,21 +92,7 @@ main_loop:
 				break main_loop
 			}
 
-			new_x_pos_flag := uint64(1 << ((guard_x - 1) % 64))
-
-			// Check obstruction
-			if board_state[guard_y][(guard_x-1)/64]&new_x_pos_flag != 0 {
-				guard_heading = 0
-				continue main_loop
-			}
-
-			// When moving off tile, check visited state
-			if !is_visited {
-				visited_positions[guard_y][guard_x/64] |= x_pos_flag
-				visited_count += 1
-			}
-
-			guard_x -= 1
+			is_obstructed = checkObstructed(board_state, guard_y, guard_x-1)
 
 		// South
 		case 2:
@@ -155,22 +116,30 @@ main_loop:
 				visited_positions = append(visited_positions, new_unvisited)
 			}
 
-			// Check obstruction
-			if board_state[guard_y+1][guard_x/64]&x_pos_flag != 0 {
-				guard_heading = 3
-				continue main_loop
-			}
+			is_obstructed = checkObstructed(board_state, guard_y+1, guard_x)
 
-			// When moving off tile, check visited state
+		default:
+			log.Fatal("Guard Heading Invalid")
+		}
+
+		if is_obstructed {
+			guard_heading = (guard_heading + 1) % 4
+		} else {
 			if !is_visited {
 				visited_positions[guard_y][guard_x/64] |= x_pos_flag
 				visited_count += 1
 			}
 
-			guard_y += 1
-
-		default:
-			log.Fatal("Guard Heading Invalid")
+			switch guard_heading {
+			case 0:
+				guard_y -= 1
+			case 1:
+				guard_x += 1
+			case 2:
+				guard_y += 1
+			case 3:
+				guard_x -= 1
+			}
 		}
 	}
 
@@ -193,4 +162,12 @@ func parseLine(line string) ([3]uint64, int) {
 	}
 
 	return flags, guard_idx
+}
+
+func checkObstructed(board_state [][3]uint64, y int, x int) bool {
+	x_pos_flag := uint64(1 << (x % 64))
+	board_row := board_state[y]
+	item := board_row[x/64]
+
+	return item&x_pos_flag != 0
 }
