@@ -2,11 +2,12 @@ package main
 
 import (
 	day1 "advent_of_code_2024/src/day_1"
+	day10 "advent_of_code_2024/src/day_10"
+	day11 "advent_of_code_2024/src/day_11"
 	day2 "advent_of_code_2024/src/day_2"
 	day3 "advent_of_code_2024/src/day_3"
 	day4 "advent_of_code_2024/src/day_4"
 	day5 "advent_of_code_2024/src/day_5"
-	day6 "advent_of_code_2024/src/day_6"
 	day7 "advent_of_code_2024/src/day_7"
 	day8 "advent_of_code_2024/src/day_8"
 	"fmt"
@@ -32,9 +33,12 @@ func main() {
 	data = append(data, parseDayStats(day3.DoDay3()))
 	data = append(data, parseDayStats(day4.DoDay4()))
 	data = append(data, parseDayStats(day5.DoDay5()))
-	data = append(data, parseDayStats(day6.DoDay6()))
+	// data = append(data, parseDayStats(day6.DoDay6()))
 	data = append(data, parseDayStats(day7.DoDay7()))
 	data = append(data, parseDayStats(day8.DoDay8()))
+	// data = append(data, parseDayStats(day9.DoDay9()))
+	data = append(data, parseDayStats(day10.DoDay10()))
+	data = append(data, parseDayStats(day11.DoDay11()))
 
 	if len(data) < 1 {
 		return
