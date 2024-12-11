@@ -6,6 +6,12 @@ import (
 	"strconv"
 )
 
+type TravelData struct {
+	head_count int
+	rating     int
+	visited    map[[2]int]bool
+}
+
 func DoDay10() (int, string, string) {
 	part_1 := 0
 	part_2 := 0
@@ -33,39 +39,49 @@ func DoDay10() (int, string, string) {
 	}
 
 	for _, start_point := range start_points {
-		var visited [][2]int
-		travel(map_data, 0, start_point[0], start_point[1], &part_1, &visited, &part_2)
+
+		data := TravelData{
+			0,
+			0,
+			make(map[[2]int]bool),
+		}
+
+		data.travel(map_data, 0, start_point[0], start_point[1])
+
+		part_1 += data.head_count
+		part_2 += data.rating
 	}
 
 	return 10, strconv.Itoa(part_1), strconv.Itoa(part_2)
 }
 
-func travel(map_data [][]int, curr_val int, x int, y int, head_count *int, visited *[][2]int, rating *int) {
+func (d *TravelData) travel(map_data [][]int, curr_val int, x int, y int) {
 	if curr_val == 9 {
-		*rating = *rating + 1
-		for _, point := range *visited {
-			if point[0] == x && point[1] == y {
-				return
-			}
+		key := [2]int{x, y}
+
+		d.rating += 1
+
+		if _, visited := d.visited[key]; visited {
+			return
 		}
-		*head_count = *head_count + 1
-		*visited = append(*visited, [2]int{x, y})
+
+		d.head_count += 1
 		return
 	}
 
 	if y > 0 && map_data[y-1][x] == curr_val+1 {
-		travel(map_data, curr_val+1, x, y-1, head_count, visited, rating)
+		d.travel(map_data, curr_val+1, x, y-1)
 	}
 
 	if y < len(map_data)-1 && map_data[y+1][x] == curr_val+1 {
-		travel(map_data, curr_val+1, x, y+1, head_count, visited, rating)
+		d.travel(map_data, curr_val+1, x, y+1)
 	}
 
 	if x < len(map_data[y])-1 && map_data[y][x+1] == curr_val+1 {
-		travel(map_data, curr_val+1, x+1, y, head_count, visited, rating)
+		d.travel(map_data, curr_val+1, x+1, y)
 	}
 
 	if x > 0 && map_data[y][x-1] == curr_val+1 {
-		travel(map_data, curr_val+1, x-1, y, head_count, visited, rating)
+		d.travel(map_data, curr_val+1, x-1, y)
 	}
 }
