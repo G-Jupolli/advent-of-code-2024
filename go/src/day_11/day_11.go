@@ -15,8 +15,6 @@ const PART_TWO_ITERATIONS = 75
 
 type Stones struct {
 	cache map[[2]int]int
-	// part_1 int
-	// part_2 int
 }
 
 func DoDay11() (int, string, string) {

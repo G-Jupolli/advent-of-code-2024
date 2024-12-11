@@ -15,19 +15,6 @@ type Point struct {
 	y int
 }
 
-type Coordinate struct {
-	x, y int
-}
-
-type Antenna struct {
-	frequency string
-	location  Coordinate
-}
-
-type CityMap [][]string
-
-type Antennas map[string][]Antenna
-
 func DoDay8() (int, string, string) {
 
 	file := helpers.GetFile(8)
