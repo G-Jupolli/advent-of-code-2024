@@ -56,8 +56,6 @@ func DoDay() (int, string, string) {
 			break
 		}
 
-		// fmt.Println(p.to_string())
-
 		if !c.handle_process(p) {
 			process_list = append(process_list, p)
 		}
@@ -130,8 +128,6 @@ func (c *cache) inititialise_registers(scanner *bufio.Scanner) {
 		}
 
 		register_key := register{line[0], line[1], line[2]}
-
-		// fmt.Printf("%s - %c - %v\n", register_key.to_string(), line[5], line[5] == '1')
 
 		c.registers[register_key] = line[5] == '1'
 	}
