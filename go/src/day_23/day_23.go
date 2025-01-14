@@ -3,6 +3,8 @@ package day23
 import (
 	"advent_of_code_2024/helpers"
 	"bufio"
+	"bytes"
+	"sort"
 	"strconv"
 )
 
@@ -58,9 +60,6 @@ func DoDay() (int, string, string) {
 
 	scanner := bufio.NewScanner(file)
 
-	// accumilator_first := 0
-	accumilator_second := 0
-
 	c := Cache{
 		0,
 		make(KnownComputers),
@@ -76,7 +75,13 @@ func DoDay() (int, string, string) {
 		c.register_connection(a, b)
 	}
 
-	return DAY, strconv.Itoa(c.cheif_groups), strconv.Itoa(accumilator_second)
+	largest_group := c.find_largest_group()
+
+	sort.Slice(largest_group, func(i, j int) bool {
+		return largest_group[i] < largest_group[j]
+	})
+
+	return DAY, strconv.Itoa(c.cheif_groups), write_computers_to_string(largest_group)
 }
 
 func parse_computer(l byte, r byte) uint16 {
@@ -124,7 +129,7 @@ func (s Connections) has_connection(connection uint32) bool {
 	return ok
 }
 
-func (c Cache) register_connection(a uint16, b uint16) {
+func (c *Cache) register_connection(a uint16, b uint16) {
 	{ // Cache connection a -> b & b -> a
 		mask_a := uint32(a)
 		mask_b := uint32(b)
@@ -145,4 +150,128 @@ func (cache *Cache) check_cheif_group(a uint16, b uint16, c uint16) {
 	if (a>>8) == search_char || (b>>8) == search_char || (c>>8) == search_char {
 		cache.cheif_groups += 1
 	}
+}
+
+func (c *Cache) find_largest_group() []uint32 {
+
+	var largest_group []uint32
+
+	for {
+		has_group, new_group := c.rip_group()
+
+		if !has_group {
+			break
+		}
+
+		if largest_group == nil || len(new_group) > len(largest_group) {
+			largest_group = new_group
+		}
+	}
+
+	return largest_group
+}
+
+func (c *Cache) rip_group() (bool, []uint32) {
+	has, com := c.known_computers.rip_one()
+
+	start_connection := uint32(com)
+
+	if !has {
+		return false, nil
+	}
+
+	group := []uint32{start_connection}
+
+	var additional [][2]uint32
+
+main_loop:
+	for u := range c.known_computers {
+		mask_u := uint32(u) << 16
+
+		for i, g_c := range group {
+			is_conn := c.connections.has_connection(mask_u | g_c)
+
+			if !is_conn {
+				if i != 0 {
+					additional = append(additional, [2]uint32{uint32(u), g_c})
+				}
+
+				continue main_loop
+			}
+		}
+
+		group = append(group, mask_u>>16)
+	}
+
+	if len(additional) == 0 {
+		return true, group
+	}
+
+	for _, init := range additional {
+		test_group := []uint32{start_connection, init[0]}
+
+	addr_loop:
+		for u := range c.known_computers {
+			mask_u := uint32(u)
+
+			if mask_u == init[0] || mask_u == init[1] {
+				continue addr_loop
+			}
+
+			mask_u <<= 16
+
+			for _, g_c := range test_group {
+				if !c.connections.has_connection(mask_u | g_c) {
+					continue addr_loop
+				}
+			}
+
+			test_group = append(test_group, mask_u>>16)
+		}
+
+		if len(test_group) > len(group) {
+			group = test_group
+		}
+	}
+
+	return true, group
+}
+
+func (k KnownComputers) rip_one() (bool, uint16) {
+	for c := range k {
+		delete(k, c)
+
+		return true, c
+	}
+
+	return false, 0
+}
+
+func write_computers_to_string(coms []uint32) string {
+
+	var buffer bytes.Buffer
+
+	for i, c := range coms {
+		if i > 0 {
+			buffer.WriteRune(',')
+		}
+		buffer.WriteByte(byte(c >> 8))
+		buffer.WriteByte(byte(c))
+	}
+
+	return buffer.String()
+}
+func write_computers_to_string_16(coms []uint16) string {
+
+	var buffer bytes.Buffer
+
+	for i, c := range coms {
+		if i > 0 {
+			buffer.WriteRune(',')
+		}
+		buffer.WriteByte(byte(c >> 8))
+		buffer.WriteByte(byte(c))
+	}
+
+	return buffer.String()
 }
